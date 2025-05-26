@@ -1,0 +1,20 @@
+.booking-search-page-wrapper, .booking-result-page-wrapper {
+    width: 100%;
+    margin: 0;
+    padding: 30px 24px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+
+    h2 {
+        font-size: 28px;
+        font-weight: bold;
+        color: #333;
+        text-align: left;
+        margin-bottom: 32px;
+    }
+
+    .booking-search-form {
+        margin-bottom: 20px;
+    }
+}

@@ -40,20 +40,16 @@ export function showPreview(event) {
         }
         reader.readAsDataURL(imageFile);
     } else if (currentImage && currentImage.src && !currentImage.src.includes('default.jpg')) {
-        console.log('Case 2: Using current image');
         // If no new image and current image is not default, show the current image
         document.getElementById('previewImage').src = currentImage.src;
     } else {
         console.log('Case 3: Using default image');
         // If no image or current image is default, show the file_path image
         const filePath = selectedType.dataset.filePath;
-        console.log('File path from data attribute:', filePath);
         
         if (filePath) {
-            console.log('Using file path:', filePath);
             document.getElementById('previewImage').src = filePath;
         } else {
-            console.log('Using default type image');
             document.getElementById('previewImage').src = selectedType.dataset.image;
         }
     }
@@ -99,7 +95,6 @@ export function initHotelEdit() {
 
     // Handle image preview
     imageInput.addEventListener('change', function(event) {
-        console.log('Image input change event triggered');
         previewImage(event.target);
     });
 
@@ -118,9 +113,6 @@ export function initHotelEdit() {
                 alert('Hotel ID is missing. Please try again.');
                 return;
             }
-
-            console.log('hotelIdInput:', hotelIdInput);
-            
             
             const hotelId = hotelIdInput.value;
             if (!hotelId) {
@@ -130,13 +122,20 @@ export function initHotelEdit() {
             }
             
             formData.set('hotel_id', hotelId);
+
+            // Handle hotel image file
+            const imageInput = document.getElementById('hotel_image_file');
+            if (imageInput && imageInput.files && imageInput.files[0]) {
+                formData.set('hotel_image_file', imageInput.files[0]);
+            }
             
             console.log('Form data:', {
                 hotel_id: formData.get('hotel_id'),
                 hotel_name: formData.get('hotel_name'),
                 prefecture_id: formData.get('prefecture_id'),
                 hotel_type: formData.get('hotel_type'),
-                description: formData.get('description')
+                description: formData.get('description'),
+                hotel_image_file: formData.get('hotel_image_file') ? 'File selected' : 'No file'
             });
 
             // Submit form using fetch
@@ -147,22 +146,33 @@ export function initHotelEdit() {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 }
             })
-            .then(response => {
+            .then(async response => {
+                const contentType = response.headers.get('content-type');
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    // Try to get error message from response
+                    let errorMessage = 'Network response was not ok';
+                    if (contentType && contentType.includes('application/json')) {
+                        const errorData = await response.json();
+                        errorMessage = errorData.message || errorMessage;
+                    }
+                    throw new Error(errorMessage);
                 }
-                return response.json();
+                
+                if (contentType && contentType.includes('application/json')) {
+                    return response.json();
+                }
+                throw new Error('Invalid response format');
             })
             .then(data => {
+                console.log('Response data:', data);
                 if (data.success) {
                     window.location.href = data.redirect;
                 } else {
-                    alert('Error updating hotel: ' + data.message);
+                    alert('Error updating hotel: ' + (data.message || 'Unknown error'));
                 }
             })
             .catch(error => {
-                console.log('Error:', error);
-                alert('Error updating hotel. Please try again.');
+                alert('Error updating hotel: ' + error.message);
             });
         });
     }

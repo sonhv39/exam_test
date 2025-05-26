@@ -1,62 +1,69 @@
-@extends('admin.hotel.search')
+@extends('common.admin.base')
 
-@section('search_results')
-    <div class="page-wrapper search-page-wrapper">
-        <div class="search-result">
-            <h3 class="search-result-title">検索結果</h3>
-            @if (!empty($hotelList))
-                <table class="shopsearchlist_table">
-                    <tbody>
-                        <tr>
-                            <td nowrap="" id="hotel_name">
-                                ホテル名
+@section('custom_css')
+    @vite(['resources/scss/admin/result.scss'])
+@endsection
+
+@section('main_contents')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <div class="result-page-wrapper">
+        <h1 class="title">Hotel Search Results</h1>
+        
+        @if(count($hotelList) > 0)
+            <table class="hotel-table">
+                <thead>
+                    <tr>
+                        <th>Hotel Name</th>
+                        <th>Prefecture</th>
+                        <th>Hotel Type</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($hotelList as $hotel)
+                        <tr data-hotel-id="{{ $hotel['hotel_id'] }}">
+                            <td>{{ $hotel['hotel_name'] }}</td>
+                            <td>{{ $hotel['prefecture']['prefecture_name'] }}</td>
+                            <td>{{ $hotel['hotel_type'] }}</td>
+                            <td class="actions">
+                                <a href="{{ route('adminHotelEdit', ['id' => $hotel['hotel_id']]) }}" class="btn-edit">Edit</a>
+                                <button type="button" 
+                                        class="btn-delete" 
+                                        data-hotel-id="{{ $hotel['hotel_id'] }}"
+                                        data-hotel-name="{{ $hotel['hotel_name'] }}">
+                                    Delete
+                                </button>
                             </td>
-                            <td nowrap="" id="pref">
-                                都道府県
-                            </td>
-                            <td nowrap="" id="created_at">
-                                登録日
-                            </td>
-                            <td nowrap="" id="updated_at">
-                                更新日
-                            </td>
-                            <td class="btn_center" id="edit"></td>
-                            <td class="btn_center" id="delete"></td>
                         </tr>
-                        @foreach($hotelList as $hotel)
-                            <tr style="background-color:#BDF1FF">
-                                <td>
-                                    <a href="" target="_blank">{{ $hotel['hotel_name'] }}</a>
-                                </td>
-                                <td>
-                                    {{ $hotel['prefecture']['prefecture_name'] }}
-                                </td>
-                                <td>
-                                    {{ (string) $hotel['created_at'] }}
-                                </td>
-                                <td>
-                                    {{ (string) $hotel['updated_at'] }}
-                                </td>
-                                <td>
-                                    <form action="{{ route('adminHotelEdit', ['id' => $hotel['hotel_id']]) }}" method="get">
-                                        @csrf
-                                        <button type="submit">編集</button>
-                                    </form>
-                                </td>
-                                <td>
-                                    <form action="{{ route('adminHotelDeleteProcess') }}" method="post">
-                                        @csrf
-                                        <input type="hidden" name="hotel_id" value="{{ $hotel['hotel_id'] }}">
-                                        <button type="submit">削除</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @else
-                <p>検索結果がありません</p>
-            @endif
+                    @endforeach
+                </tbody>
+            </table>
+        @else
+            <p class="no-results">No hotels found.</p>
+        @endif
+
+        <div class="form-actions">
+            <a href="{{ route('adminHotelSearchPage') }}" class="btn-back">Back to Search</a>
         </div>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Confirm Delete</h2>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this hotel?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" id="cancelDelete">Cancel</button>
+                <button type="button" class="btn-confirm" id="confirmDelete">OK</button>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('page_js')
+    @vite(['resources/js/app.js'])
 @endsection

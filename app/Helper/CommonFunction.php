@@ -18,7 +18,7 @@ class CommonFunction
 
             // Create directory if it doesn't exist
             if (!File::exists($uploadPath)) {
-                if (!File::makeDirectory($uploadPath, 0777, true)) {
+                if (!File::makeDirectory($uploadPath, 0755, true)) {
                     throw new \Exception('Failed to create directory: ' . $uploadPath);
                 }
             }

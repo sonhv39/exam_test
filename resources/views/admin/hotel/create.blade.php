@@ -9,7 +9,7 @@
 <!-- main contents -->
 @section('main_contents')
     <div class="page-wrapper create-page-wrapper">
-        <h2 class="title">Hotel Registration</h2>
+        <h2>Hotel Registration</h2>
         <hr>
         <div class="create-form">
             <form action="{{ route('adminHotelCreateProcess') }}" method="post" enctype="multipart/form-data">

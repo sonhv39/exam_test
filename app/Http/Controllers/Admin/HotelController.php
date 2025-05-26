@@ -9,6 +9,7 @@ use App\Http\Requests\hotel\CreateHotelRequest;
 use App\Http\Requests\hotel\EditHotelRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 use App\Models\Hotel;
@@ -29,7 +30,8 @@ class HotelController extends Controller
 
     public function showSearch(): View
     {
-        return view('admin.hotel.search');
+        $prefectures = $this->prefecture->all();
+        return view('admin.hotel.search', compact('prefectures'));
     }
 
     public function showResult(): View
@@ -55,7 +57,7 @@ class HotelController extends Controller
     {
         $hotel = $this->hotel->findOrFail($request->hotel_id);
         $prefecture = $this->prefecture->findOrFail($request->prefecture_id);
-        
+
         $data = [
             'hotel_name' => $request->hotel_name,
             'prefecture_id' => $request->prefecture_id,
@@ -76,10 +78,9 @@ class HotelController extends Controller
     public function searchResult(Request $request): View
     {
         $var = [];
-
         $hotelNameToSearch = $request->input('hotel_name');
-        $hotelList = Hotel::getHotelListByName($hotelNameToSearch);
-
+        $prefectureId = $request->input('prefecture_id');
+        $hotelList = Hotel::getHotelListByName($hotelNameToSearch, $prefectureId);
         $var['hotelList'] = $hotelList;
 
         return view('admin.hotel.result', $var);
@@ -94,7 +95,7 @@ class HotelController extends Controller
                 // Upload hotel image to public/assets/img/hotel directory
                 $filePath = CommonFunction::uploadFileImg($dataCreateHotel['hotel_image_file'], 'hotel');
             }
-            
+
             // Create hotel record
             $hotel = $this->hotel->create([
                 'hotel_name' => $dataCreateHotel['hotel_name'],
@@ -114,21 +115,55 @@ class HotelController extends Controller
         }
     }
 
-    public function delete(Request $request): void
+    public function delete(Request $request)
     {
-        //
+        try {
+            $hotel = Hotel::where('hotel_id', $request->hotel_id)->first();
+            if (!$hotel) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Hotel not found'
+                ], 404);
+            }
+
+            // Delete hotel image if exists
+            if ($hotel->hotel_image_path) {
+                $imagePath = public_path($hotel->hotel_image_path);
+                if (File::exists($imagePath)) {
+                    File::delete($imagePath);
+                }
+            }
+
+            $hotel->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Hotel deleted successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error deleting hotel: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function update(Request $request)
     {
 
         try {
-            $hotel = Hotel::findOrFail($request->hotel_id);
-            
+            $hotel = Hotel::query()->where('hotel_id', $request->hotel_id)->first();
+            if (!$hotel) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Hotel not found'
+                ], 404);
+            }
+
             // Validate request
             $validator = Validator::make($request->all(), [
                 'hotel_name' => 'required|string|max:255',
-                'prefecture_id' => 'required|exists:prefectures,id',
+                'prefecture_id' => 'required|exists:prefectures,prefecture_id',
                 'hotel_type' => 'required|string',
                 'description' => 'required|string',
                 'hotel_image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
@@ -141,7 +176,6 @@ class HotelController extends Controller
                 ], 422);
             }
 
-            // Update hotel information
             $hotel->hotel_name = $request->hotel_name;
             $hotel->prefecture_id = $request->prefecture_id;
             $hotel->hotel_type = $request->hotel_type;
@@ -150,16 +184,17 @@ class HotelController extends Controller
 
             // Handle image upload if new image is provided
             if ($request->hasFile('hotel_image_file')) {
-                // Delete old image if exists
-                if ($hotel->hotel_image_path) {
-                    $oldImagePath = public_path($hotel->hotel_image_path);
-                    if (file_exists($oldImagePath)) {
-                        unlink($oldImagePath);
-                    }
-                }
-                
+                $oldPath = $hotel->hotel_image_path;
                 // Upload new image
                 $filePath = CommonFunction::uploadFileImg($request->file('hotel_image_file'), 'hotel');
+                
+                // Delete old image if exists
+                if (oldPath) {
+                    $oldImagePath = public_path(oldPath);
+                    if (File::exists($oldImagePath)) {
+                        File::delete($oldImagePath);
+                    }
+                }
                 $hotel->hotel_image_path = $filePath;
             }
 
@@ -168,7 +203,7 @@ class HotelController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Hotel updated successfully',
-                'redirect' => route('adminHotelEditComplete', ['id' => $hotel->id])
+                'redirect' => route('adminHotelEditComplete', ['id' => $hotel->hotel_id])
             ]);
 
         } catch (\Exception $e) {
@@ -181,7 +216,7 @@ class HotelController extends Controller
 
     public function showEditComplete($id)
     {
-        $hotel = Hotel::with(['prefecture', 'hotelType'])->findOrFail($id);
+        $hotel = Hotel::query()->where('hotel_id', $id)->first();
         return view('admin.hotel.edit_complete', compact('hotel'));
     }
 }

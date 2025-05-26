@@ -10,16 +10,33 @@
 <!-- main containts -->
 @section('main_contents')
     <div class="page-wrapper search-page-wrapper">
-        <h2 class="title">検索画面</h2>
-        <hr>
-        <div class="search-hotel-name">
-            <form action="{{ route('adminHotelSearchResult') }}" method="post">
-                @csrf
-                <input type="text" name="hotel_name" value="" placeholder="ホテル名">
-                <button type="submit">検索</button>
-            </form>
+        <div class="title-wrapper">
+            <h2 class="title">検索画面</h2>
         </div>
-        <hr>
+        <div class="search-hotel-name">
+                <form action="{{ route('adminHotelSearchResult') }}" method="post" id="searchForm">
+                    @csrf
+                    <div class="input-group">
+                        <input type="text" name="hotel_name" value="{{ old('hotel_name') }}" placeholder="ホテル名">
+                        <select name="prefecture_id">
+                            <option value="">都道府県を選択</option>
+                            @foreach($prefectures as $prefecture)
+                                <option value="{{ $prefecture->prefecture_id }}" {{ old('prefecture_id') == $prefecture->prefecture_id ? 'selected' : '' }}>
+                                    {{ $prefecture->prefecture_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <button type="submit">検索</button>
+                    </div>
+                    <span class="error" id="errorMessage" style="display: none;">何も入力されていません</span>
+                    @if(isset($error))
+                        <span class="error">{{ $error }}</span>
+                    @endif
+                </form>
+            </div>
     </div>
-    @yield('search_results')
+@endsection
+
+@section('page_js')
+    @vite(['resources/js/app.js'])
 @endsection

@@ -9,11 +9,14 @@
         {{-- @vite('resources/css/reset.css') --}}
         @vite('resources/css/admin/base.css')
         @vite('resources/scss/admin/side-menu.scss')
+        @vite('resources/scss/admin/base.scss')
         @yield('custom_css')
     </head>
     <body>
-        <x-admin.side-menu />
-        @yield('main_contents')
+        <div class="container">
+            <x-admin.side-menu />
+            @yield('main_contents')
+        </div>
         @yield('page_js')
     </body>
 </html>

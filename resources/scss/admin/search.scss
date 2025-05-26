@@ -1,0 +1,82 @@
+.search-page-wrapper {
+    width: 100%;
+    padding: 30px 24px;
+    background: #fff;
+    border-radius: 10px;
+
+    .title-wrapper {
+        width: 900px;
+        margin: 0 0 0 260px;
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 32px;
+        }
+    }
+
+
+    .search-hotel-name {
+        background-color: #f8f9fa;
+        padding: 24px 0;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        width: 900px;
+        min-width: 320px;
+        max-width: 100%;
+        margin: 0 auto 30px auto;
+
+        form {
+            width: 100%;
+
+            .input-group {
+                display: flex;
+                justify-content: left;
+                align-items: center;
+                gap: 10px;
+                width: 100%;
+                padding-left: 20px;
+
+                input[type="text"] {
+                    width: 450px;
+                    padding: 8px 12px;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    font-size: 16px;
+                    background-color: white;
+                }
+
+                select {
+                    width: 160px;
+                    padding: 8px 12px;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    font-size: 16px;
+                    background-color: white;
+                    height: 38px;
+                    color: #333;
+                }
+
+                button {
+                    padding: 8px 20px;
+                    background-color: #2196F3;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 16px;
+                    height: 38px;
+                }
+            }
+
+            .error {
+                display: block;
+                color: #f44336;
+                font-size: 14px;
+                margin-top: 5px;
+                padding-left: 20px;
+                text-align: left;
+            }
+        }
+    }
+}

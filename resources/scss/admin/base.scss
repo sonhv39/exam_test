@@ -1,0 +1,23 @@
+.container {
+    display: flex;
+    width: 100vw;
+    min-height: 100vh;
+    background: #e5e5e5;
+}
+
+.side-menu {
+    width: 20%;
+    min-width: 180px;
+    max-width: 260px;
+    background: #f4f4f4;
+    border-right: 1px solid #ddd;
+    padding: 30px 10px 30px 20px;
+    box-sizing: border-box;
+}
+
+.main-contents, .main_contents {
+    width: 80%;
+    padding: 30px 40px;
+    box-sizing: border-box;
+    background: transparent;
+}

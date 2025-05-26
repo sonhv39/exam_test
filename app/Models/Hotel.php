@@ -35,19 +35,25 @@ class Hotel extends Model
     }
 
     /**
-     * Search hotel by hotel name
+     * Search hotel by hotel name and prefecture
      *
-     * @param string $hotelName
+     * @param string|null $hotelName
+     * @param int|null $prefectureId
      * @return array
      */
-    static public function getHotelListByName(string $hotelName): array
+    static public function getHotelListByName(string $hotelName = null, int $prefectureId = null): array
     {
-        $result = Hotel::where('hotel_name', '=', $hotelName)
-            ->with('prefecture')
-            ->get()
-            ->toArray();
+        $query = Hotel::query()->with('prefecture');
 
-        return $result;
+        if ($hotelName) {
+            $query->where('hotel_name', 'LIKE', '%' . $hotelName . '%');
+        }
+
+        if ($prefectureId) {
+            $query->where('prefecture_id', $prefectureId);
+        }
+
+        return $query->get()->toArray();
     }
 
     public static function createHotel($data)

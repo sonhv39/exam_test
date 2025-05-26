@@ -22,12 +22,10 @@ class HotelController extends Controller
 
     public function showList(string $prefecture_name_alpha): View
     {
-        // prefecture information
         $prefectures = $this->prefecture
             ->where('prefecture_name_alpha', $prefecture_name_alpha)
             ->first();
 
-        // hotel information
         $hotels = $this->hotel
             ->where('prefecture_id', $prefectures->prefecture_id)
             ->inRandomOrder()
